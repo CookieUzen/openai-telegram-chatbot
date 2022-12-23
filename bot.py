@@ -51,7 +51,6 @@ def echo(update: Update, context: CallbackContext):
         context.bot_data['ill'] = 0.3
 
     responce = get_responce(prompt, temperature=context.bot_data['ill'])
-    context.bot_data['lastResponse'] = responce
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=responce)
 
@@ -65,22 +64,18 @@ def chat(update: Update, context: CallbackContext):
         context.bot_data['ill'] = 0.3
 
     responce = get_responce(prompt, temperature=context.bot_data['ill'])
-    context.bot_data['lastResponse'] = responce
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=responce)
 
 
 # For command /continue
 def continue_(update: Update, context: CallbackContext):
-    previous = context.bot_data['lastPrompt'] + "\n" + context.bot_data['lastResponse'] + "\n"
-    prompt = previous + " ".join(update.message.text.split(" ")[1:])
+    context.bot_data['lastPrompt'] = context.bot_data['lastPrompt'] + " ".join(update.message.text.split(" ")[1:])
+    prompt = context.bot_data['lastPrompt']
     print(prompt)
-    context.bot_data['lastPrompt'] = prompt
-
     responce = get_responce(prompt)
-    context.bot_data['lastResponse'] = responce
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text=previous+prompt+responce)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=responce)
 
 
 # For command /ill
