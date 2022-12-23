@@ -56,6 +56,19 @@ def echo(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=responce)
 
 
+def chat(update: Update, context: CallbackContext):
+    prompt = update.message.text
+    context.bot_data['lastPrompt'] = prompt
+
+    if 'ill' not in context.bot_data.keys():
+        context.bot_data['ill'] = 0.3
+
+    responce = get_responce(prompt, temperature=context.bot_data['ill'])
+    context.bot_data['lastResponse'] = responce
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=responce)
+
+
 # For command /continue
 def continue_(update: Update, context: CallbackContext):
     prompt = context.bot_data['lastPrompt'] + "\n" + context.bot_data['lastResponse'] + "\n" + update.message.text
@@ -87,5 +100,9 @@ echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
 dispatcher.add_handler(echo_handler)
 continue_handler = CommandHandler('continue', continue_)
 dispatcher.add_handler(continue_handler)
+ill_handler = CommandHandler('ill', ill)
+dispatcher.add_handler(ill_handler)
+chat_handler = CommandHandler('chat', chat)
+dispatcher.add_handler(chat_handler)
 
 updater.start_polling()
