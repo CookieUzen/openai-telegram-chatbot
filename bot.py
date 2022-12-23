@@ -33,7 +33,7 @@ def get_responce(prompt, max_tokens=1000, temperature=0.9, frequency_penalty=0, 
     responce = openai.Completion.create(
         model=model,
         prompt=prompt,
-        max_tokens=256,
+        max_tokens=1000,
         temperature=0.9,
         presence_penalty=0,
         frequency_penalty=0
