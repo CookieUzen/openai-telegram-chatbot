@@ -57,7 +57,8 @@ def echo(update: Update, context: CallbackContext):
 
 
 def chat(update: Update, context: CallbackContext):
-    prompt = update.message.text
+    prompt = " ".join(update.message.text.split(" ")[1:])
+    print(prompt)
     context.bot_data['lastPrompt'] = prompt
 
     if 'ill' not in context.bot_data.keys():
@@ -71,9 +72,15 @@ def chat(update: Update, context: CallbackContext):
 
 # For command /continue
 def continue_(update: Update, context: CallbackContext):
-    prompt = context.bot_data['lastPrompt'] + "\n" + context.bot_data['lastResponse'] + "\n" + update.message.text
+    previous = context.bot_data['lastPrompt'] + "\n" + context.bot_data['lastResponse'] + "\n"
+    prompt = previous + " ".join(update.message.text.split(" ")[1:])
+    print(prompt)
+    context.bot_data['lastPrompt'] = prompt
+
     responce = get_responce(prompt)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=responce)
+    context.bot_data['lastResponse'] = responce
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=previous+prompt+responce)
 
 
 # For command /ill
@@ -81,7 +88,14 @@ def ill(update: Update, context: CallbackContext):
 
     # Catch if input is not a number
     try:
-        ill = int(update.message.text.strip())
+        ill = update.message.text.strip().split(" ")[1]
+        ill = float(ill)
+    except IndexError:
+        if 'ill' not in context.bot_data.keys():
+            context.bot_data['ill'] = 0.3
+
+        context.bot.send_message(chat_id=update.effective_chat.id, text="illness at: " + str(context.bot_data['ill']) + " (value from 0.0 - 1.0)")
+        return
     except:
         context.bot.send_message(chat_id=update.effective_chat.id, text="Please enter a number")
         return
